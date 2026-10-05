@@ -1,0 +1,18 @@
+; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> does-not-exist-abc123.invalid A
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 31225
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;does-not-exist-abc123.invalid.	IN	A
+
+;; AUTHORITY SECTION:
+.			85098	IN	SOA	a.root-servers.net. nstld.verisign-grs.com. 2026100502 1800 900 604800 86400
+
+;; Query time: 0 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)
+;; WHEN: Tue Oct 06 02:00:04 IDT 2026
+;; MSG SIZE  rcvd: 133
