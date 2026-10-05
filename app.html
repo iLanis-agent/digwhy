@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DigWhy</title>
+<style>
+  :root { --bg:#0e1116; --card:#171c24; --ink:#e8ecf1; --dim:#9aa6b2; --acc:#fbbf24; --acc2:#38bdf8;
+          --ok:#34d399; --warn:#fbbf24; --info:#60a5fa; --line:#262e3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; padding:28px 20px 64px; }
+  .top { display:flex; align-items:baseline; gap:12px; margin-bottom:18px; }
+  h1 { font-size:26px; margin:0; }
+  .top a { color:var(--dim); font-size:14px; text-decoration:none; }
+  .top a:hover { color:var(--acc2); }
+  textarea { width:100%; height:170px; background:#0a0d11; color:#c9d4de; border:1px solid var(--line); border-radius:10px;
+             font:13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; padding:12px; }
+  .presets { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 6px; }
+  .presets button { background:#222a36; color:var(--dim); border:1px solid var(--line); border-radius:8px; padding:6px 12px;
+                    font-size:13px; cursor:pointer; font-family:inherit; }
+  .presets button:hover { color:var(--ink); border-color:var(--acc2); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 20px; margin:14px 0; }
+  .card h2 { margin:0 0 10px; font-size:15px; text-transform:uppercase; letter-spacing:1px; color:var(--dim); }
+  .note { padding:8px 12px; border-radius:8px; margin:6px 0; font-size:14.5px; border-left:3px solid; }
+  .note.ok { background:rgba(52,211,153,.08); border-color:var(--ok); }
+  .note.warn { background:rgba(251,191,36,.08); border-color:var(--warn); }
+  .note.info { background:rgba(96,165,250,.08); border-color:var(--info); }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th { text-align:left; color:var(--dim); font-weight:600; font-size:12.5px; text-transform:uppercase; letter-spacing:.5px;
+       padding:4px 10px 4px 0; border-bottom:1px solid var(--line); }
+  td { padding:6px 10px 6px 0; border-bottom:1px solid #1e2530; vertical-align:top; }
+  td code, .flag { font:13px ui-monospace, Menlo, monospace; color:var(--acc); background:#0a0d11; padding:1px 6px; border-radius:6px; }
+  .mean { color:var(--dim); font-size:13.5px; }
+  .muted { color:var(--dim); }
+  .err { color:#f87171; padding:8px 0; }
+  #out { margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>DigWhy</h1><a href="index.html">&larr; what is this</a></div>
+  <textarea id="inp" spellcheck="false" placeholder="Paste raw dig output here - the whole thing, header and all."></textarea>
+  <div class="presets" id="presets"></div>
+  <div id="out"></div>
+</div>
+<script src="engine.js"></script>
+<script>
+const PRESETS = {"Basic A record": "; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> example.com A\n;; global options: +cmd\n;; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 42855\n;; flags: qr rd ra ad; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; QUESTION SECTION:\n;example.com.\t\t\tIN\tA\n\n;; ANSWER SECTION:\nexample.com.\t\t300\tIN\tA\t104.20.23.154\nexample.com.\t\t300\tIN\tA\t172.66.147.243\n\n;; Query time: 8 msec\n;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)\n;; WHEN: Tue Oct 06 02:00:03 IDT 2026\n;; MSG SIZE  rcvd: 72", "CNAME chain": "; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> www.github.com A\n;; global options: +cmd\n;; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 57991\n;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; QUESTION SECTION:\n;www.github.com.\t\t\tIN\tA\n\n;; ANSWER SECTION:\nwww.github.com.\t\t2530\tIN\tCNAME\tgithub.com.\ngithub.com.\t\t60\tIN\tA\t140.82.116.4\n\n;; Query time: 12 msec\n;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)\n;; WHEN: Tue Oct 06 02:00:03 IDT 2026\n;; MSG SIZE  rcvd: 73", "NXDOMAIN": "; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> does-not-exist-abc123.invalid A\n;; global options: +cmd\n;; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 31225\n;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; QUESTION SECTION:\n;does-not-exist-abc123.invalid.\tIN\tA\n\n;; AUTHORITY SECTION:\n.\t\t\t85098\tIN\tSOA\ta.root-servers.net. nstld.verisign-grs.com. 2026100502 1800 900 604800 86400\n\n;; Query time: 0 msec\n;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)\n;; WHEN: Tue Oct 06 02:00:04 IDT 2026\n;; MSG SIZE  rcvd: 133", "NODATA (name exists, type does not)": "; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> example.com CAA\n;; global options: +cmd\n;; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 41398\n;; flags: qr rd ra ad; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; QUESTION SECTION:\n;example.com.\t\t\tIN\tCAA\n\n;; AUTHORITY SECTION:\nexample.com.\t\t1440\tIN\tSOA\telliott.ns.cloudflare.com. dns.cloudflare.com. 2416374680 10000 2400 604800 1800\n\n;; Query time: 0 msec\n;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)\n;; WHEN: Tue Oct 06 02:00:04 IDT 2026\n;; MSG SIZE  rcvd: 102", "Null MX (accepts no email)": "; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> example.com MX\n;; global options: +cmd\n;; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 30105\n;; flags: qr rd ra ad; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags:; udp: 512\n;; QUESTION SECTION:\n;example.com.\t\t\tIN\tMX\n\n;; ANSWER SECTION:\nexample.com.\t\t90\tIN\tMX\t0 .\n\n;; Query time: 0 msec\n;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)\n;; WHEN: Tue Oct 06 02:00:04 IDT 2026\n;; MSG SIZE  rcvd: 55", "DNSSEC signed": "; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> example.com DNSKEY +dnssec\n;; global options: +cmd\n;; Got answer:\n;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 14113\n;; flags: qr rd ra ad; QUERY: 1, ANSWER: 5, AUTHORITY: 0, ADDITIONAL: 1\n\n;; OPT PSEUDOSECTION:\n; EDNS: version: 0, flags: do; udp: 512\n;; QUESTION SECTION:\n;example.com.\t\t\tIN\tDNSKEY\n\n;; ANSWER SECTION:\nexample.com.\t\t155\tIN\tDNSKEY\t257 3 13 mdsswUyr3DPW132mOi8V9xESWE8jTo0dxCjjnopKl+GqJxpVXckHAeF+ KkxLbxILfDLUT0rAK9iUzy1L53eKGQ==\nexample.com.\t\t155\tIN\tDNSKEY\t256 3 13 MjyZielP0GqniI1+j+wAG/3t0ImDDIlj1CxR0oobkZQHSKH2Fqx6tm2N cYu57POJ83SzCWLkqIjZHS1mh5wbaw==\nexample.com.\t\t155\tIN\tDNSKEY\t256 3 13 oJMRESz5E4gYzS/q6XDrvU1qMPYIjCWzJaOau8XNEZeqCYKD5ar0IRd8 KqXXFJkqmVfRvMGPmM1x8fGAa2XhSA==\nexample.com.\t\t155\tIN\tDNSKEY\t256 3 13 kxipjoIbNZDsWqEKaYaGq6fM/XThrRp1ue6AV9R/n3eWxpGCeCWJb47P EEEj/Q6VAYFW/7UFo5mXoZfxKYZa3A==\nexample.com.\t\t155\tIN\tRRSIG\tDNSKEY 13 2 3600 20261125174647 20260925174647 2371 example.com. yRk1bPR2me7iIKOU92MMaSHdP87zf3FWlOt4rL8LD2knni8AOLzoQj96 PrhdmEWcIk0CxMMxtnE764A0R0p9qQ==\n\n;; Query time: 4 msec\n;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)\n;; WHEN: Tue Oct 06 02:00:04 IDT 2026\n;; MSG SIZE  rcvd: 467"};
+const inp = document.getElementById('inp');
+const out = document.getElementById('out');
+
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function render() {
+  const text = inp.value.trim();
+  if (!text) { out.innerHTML = ''; return; }
+  const p = DigWhy.parseDig(text);
+  let h = '';
+  if (p.status === null) {
+    h += '<div class="card"><p class="err">No dig header found. Paste the full output starting from the &lt;&lt;&gt;&gt; DiG line - not just the answer section.</p></div>';
+    out.innerHTML = h; return;
+  }
+  const notes = DigWhy.explain(p);
+
+  h += '<div class="card"><h2>Read this first</h2>' +
+    notes.map(n => `<div class="note ${n.sev}">${esc(n.text)}</div>`).join('') + '</div>';
+
+  h += '<div class="card"><h2>Header</h2><table><tr><th>Field</th><th>Value</th><th>Meaning</th></tr>';
+  h += `<tr><td>status</td><td><code>${esc(p.status)}</code></td><td class="mean">${esc(DigWhy.STATUS[p.status] || '')}</td></tr>`;
+  h += `<tr><td>opcode</td><td><code>${esc(p.opcode)}</code></td><td class="mean">${p.opcode === 'QUERY' ? 'a standard lookup' : 'rare opcode'}</td></tr>`;
+  h += `<tr><td>id</td><td><code>${p.id}</code></td><td class="mean">random query ID - the response must match, which makes blind spoofing hard</td></tr>`;
+  for (const f of p.flags) {
+    h += `<tr><td>flag</td><td><span class="flag">${esc(f)}</span></td><td class="mean">${esc(DigWhy.FLAGS[f] || 'unknown flag')}</td></tr>`;
+  }
+  h += `<tr><td>counts</td><td class="muted">Q ${p.counts.query} / A ${p.counts.answer} / AUTH ${p.counts.authority} / ADD ${p.counts.additional}</td><td class="mean">records in each section below (ADD counts the OPT pseudo-record)</td></tr>`;
+  if (p.opt) {
+    h += `<tr><td>EDNS</td><td class="muted">v${p.opt.version}, udp ${p.opt.udp}${p.opt.flags.length ? ', flags ' + p.opt.flags.join(' ') : ''}</td><td class="mean">${esc(DigWhy.EDNSFLAGS[p.opt.flags[0]] || 'extended DNS in use (bigger answers, DNSSEC fields, cookies)')}</td></tr>`;
+  }
+  h += '</table></div>';
+
+  if (p.question.length) {
+    h += '<div class="card"><h2>Question</h2><table><tr><th>Name</th><th>Class</th><th>Type</th></tr>' +
+      p.question.map(q => `<tr><td><code>${esc(q.name)}</code></td><td class="muted">${esc(q.cls)}</td><td class="mean">${esc(DigWhy.RRTYPES[q.type] || q.type)}</td></tr>`).join('') + '</table></div>';
+  }
+
+  function section(title, rows) {
+    if (!rows.length) return '';
+    let s = `<div class="card"><h2>${title}</h2><table><tr><th>Name</th><th>TTL</th><th>Type</th><th>Record</th></tr>`;
+    for (const r of rows) {
+      const exp = DigWhy.explainRecord(r);
+      const ttlNote = p.flags.includes('aa') ? 'zone-set TTL' : 'from cache - counting down';
+      s += `<tr><td><code>${esc(r.name)}</code></td><td class="muted" title="${ttlNote}">${r.ttl}s</td>` +
+           `<td class="mean">${esc(DigWhy.RRTYPES[r.type] || r.type)}</td><td><code>${esc(r.rdata)}</code>${exp ? `<div class="mean">${esc(exp)}</div>` : ''}</td></tr>`;
+    }
+    return s + '</table></div>';
+  }
+  h += section('Answer - the data you asked for', p.answer);
+  h += section('Authority - who is responsible', p.authority);
+  h += section('Additional - bonus glue', p.additional);
+
+  const stats = [];
+  if (p.queryTime !== null) stats.push(`query time ${p.queryTime} ms`);
+  if (p.server) stats.push(`server ${p.server}`);
+  if (p.when) stats.push(esc(p.when));
+  if (p.size !== null) stats.push(`message size ${p.size} bytes`);
+  if (stats.length) h += `<div class="card"><h2>Stats</h2><p class="muted">${stats.join(' &middot; ')}</p></div>`;
+
+  out.innerHTML = h;
+}
+
+const pr = document.getElementById('presets');
+for (const name of Object.keys(PRESETS)) {
+  const b = document.createElement('button');
+  b.textContent = name;
+  b.onclick = () => { inp.value = PRESETS[name]; render(); };
+  pr.appendChild(b);
+}
+inp.addEventListener('input', render);
+inp.value = PRESETS['Basic A record'];
+render();
+</script>
+</body>
+</html>
