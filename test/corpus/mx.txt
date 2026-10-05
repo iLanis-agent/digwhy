@@ -1,0 +1,18 @@
+; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> google.com MX
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 20277
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;google.com.			IN	MX
+
+;; ANSWER SECTION:
+google.com.		240	IN	MX	10 smtp.google.com.
+
+;; Query time: 0 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)
+;; WHEN: Tue Oct 06 02:00:04 IDT 2026
+;; MSG SIZE  rcvd: 60
