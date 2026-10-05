@@ -195,5 +195,10 @@
     }
   }
 
-  return { STATUS: STATUS, FLAGS: FLAGS, RRTYPES: RRTYPES, CLASSES: CLASSES, parseDig: parseDig, explain: explain, explainRecord: explainRecord };
+  var EDNSFLAGS = {
+    do: 'DNSSEC OK: the client wants DNSSEC records (signatures) in the response',
+    cd: 'checking disabled: the client will do its own DNSSEC validation'
+  };
+
+  return { STATUS: STATUS, FLAGS: FLAGS, RRTYPES: RRTYPES, CLASSES: CLASSES, EDNSFLAGS: EDNSFLAGS, parseDig: parseDig, explain: explain, explainRecord: explainRecord };
 });
