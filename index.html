@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DigWhy - every line of dig output, decoded</title>
+<meta name="description" content="DigWhy parses real dig output: the header flags, the status codes, what the TTL actually means, when ANSWER: 0 is NXDOMAIN vs NODATA, and the flags that tell you the answer came from cache.">
+<style>
+  :root { --bg:#0e1116; --card:#171c24; --ink:#e8ecf1; --dim:#9aa6b2; --acc:#fbbf24; --acc2:#38bdf8; --line:#262e3a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:48px 20px 64px; }
+  h1 { font-size:38px; line-height:1.15; margin:0 0 16px; letter-spacing:-0.5px; }
+  h1 span { color:var(--acc); }
+  p.lede { font-size:19px; color:var(--dim); margin:0 0 28px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px 24px; margin:18px 0; }
+  .card h2 { margin:0 0 8px; font-size:20px; }
+  .card p { margin:0; color:var(--dim); }
+  .cta { display:inline-block; margin-top:28px; background:var(--acc); color:#3a2a05; font-weight:700; font-size:18px; padding:14px 30px; border-radius:12px; text-decoration:none; }
+  .cta:hover { filter:brightness(1.08); }
+  .fine { margin-top:34px; font-size:13px; color:var(--dim); }
+  code { background:#0a0d11; padding:1px 6px; border-radius:6px; font-size:14px; color:var(--acc); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>dig prints twenty lines. <span>Operators read three.</span></h1>
+  <p class="lede">DigWhy decodes real dig output the way an operator skims it: the status that matters, the flags that tell you whether the answer is authoritative or cached, and the difference between ANSWER: 0 that means "no such name" and ANSWER: 0 that means "no such record type".</p>
+
+  <div class="card">
+    <h2>NXDOMAIN is not NODATA</h2>
+    <p>An empty answer with status NXDOMAIN means the name does not exist. An empty answer with status NOERROR and an SOA in AUTHORITY means the name exists but has no record of your type - a <code>null MX</code> like <code>0 .</code> means something else again: "this domain accepts no email, by design" (RFC 7505).</p>
+  </div>
+  <div class="card">
+    <h2>The flags are the story</h2>
+    <p>No <code>aa</code>? Your answer came from a resolver's cache, and the TTL is counting down, not fresh from the zone. <code>tc</code>? The answer was truncated - re-run over TCP. <code>ad</code>? The resolver DNSSEC-validated it.</p>
+  </div>
+  <div class="card">
+    <h2>CNAME chains, drawn out</h2>
+    <p>Aliased names resolve hop by hop, and DigWhy draws the whole chain from the answer section so you can see where it lands - and where it breaks.</p>
+  </div>
+
+  <a class="cta" href="app.html">Decode a dig output</a>
+  <p class="fine">Runs entirely in your browser. Parser cross-checked against an independent Python implementation on 11 live-captured dig outputs (A, MX, NS, SOA, CAA, TXT, PTR, CNAME chains, NXDOMAIN, NODATA, DNSSEC) - 160 checks, 0 disagreements.</p>
+</div>
+</body>
+</html>
