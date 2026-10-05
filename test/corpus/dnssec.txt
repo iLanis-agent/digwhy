@@ -1,0 +1,22 @@
+; <<>> DiG 9.18.39-0ubuntu0.22.04.6-Ubuntu <<>> example.com DNSKEY +dnssec
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 14113
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 5, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags: do; udp: 512
+;; QUESTION SECTION:
+;example.com.			IN	DNSKEY
+
+;; ANSWER SECTION:
+example.com.		155	IN	DNSKEY	257 3 13 mdsswUyr3DPW132mOi8V9xESWE8jTo0dxCjjnopKl+GqJxpVXckHAeF+ KkxLbxILfDLUT0rAK9iUzy1L53eKGQ==
+example.com.		155	IN	DNSKEY	256 3 13 MjyZielP0GqniI1+j+wAG/3t0ImDDIlj1CxR0oobkZQHSKH2Fqx6tm2N cYu57POJ83SzCWLkqIjZHS1mh5wbaw==
+example.com.		155	IN	DNSKEY	256 3 13 oJMRESz5E4gYzS/q6XDrvU1qMPYIjCWzJaOau8XNEZeqCYKD5ar0IRd8 KqXXFJkqmVfRvMGPmM1x8fGAa2XhSA==
+example.com.		155	IN	DNSKEY	256 3 13 kxipjoIbNZDsWqEKaYaGq6fM/XThrRp1ue6AV9R/n3eWxpGCeCWJb47P EEEj/Q6VAYFW/7UFo5mXoZfxKYZa3A==
+example.com.		155	IN	RRSIG	DNSKEY 13 2 3600 20261125174647 20260925174647 2371 example.com. yRk1bPR2me7iIKOU92MMaSHdP87zf3FWlOt4rL8LD2knni8AOLzoQj96 PrhdmEWcIk0CxMMxtnE764A0R0p9qQ==
+
+;; Query time: 4 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8) (UDP)
+;; WHEN: Tue Oct 06 02:00:04 IDT 2026
+;; MSG SIZE  rcvd: 467
